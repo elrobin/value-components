@@ -1,0 +1,525 @@
+---
+title: 'Codebook: Study on value creation model of science-society interactions'
+author: "Irene Ramos-Vielba, Nicolas Robinson-Garcia and Richard Woolley"
+date: "17/2/2022"
+output: html_document
+toc: TRUE
+toc_float: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Required libraries
+library(archetypes)
+library(ggplot2)
+library(tidyverse)
+library(corrplot)
+library(dplyr)
+library(Hmisc)
+library(GGally)
+library(archetypes)
+
+```
+
+# Brief description
+
+This is document reproduces the figures produced in the study 'A value creation model for science-society interconnections: Archetypal analysis combining publications, survey and altmetric data' authored by I. Ramos-Vielba, N. Robinson-Garcia /& R. Woolley. The preprint version of this study is available at [doi:10.31235/osf.io/tkzc5](https://doi.org/10.31235/osf.io/tkzc5). Data is available at [doi:10.5281/zenodo.4767452](http://doi.org/10.5281/zenodo.4767452). Code scripts are available in a (GitHub repository)[https://github.com/elrobin/value-components].
+
+# Data import and processing
+
+Data is imported from Zenodo. It includes 6174 observations and 13 variables.
+The 38 cases removed correspond to observations from researchers who were categorised as Multidisciplinary.
+
+```{r}
+df <- read.csv(
+  "https://zenodo.org/record/4767452/files/dataset_archetypes.csv?download=1",
+  colClasses = c("NULL", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA)
+)
+
+df <- df[complete.cases(df),]
+str(df)
+```
+
+We create non-size dependent variables based on publications by converting these into proportions and we then rename them to match the naming of the value creation model.
+
+```{r}
+df$pp_news <- df$p_news / df$PUBS
+df$pp_policy <- df$p_policy / df$PUBS
+df$pp_oa <- df$OA / df$PUBS
+df$pp_twitter <- df$p_twitter / df$PUBS
+
+df <- df %>% # Select and rename variables
+  select(
+    id,
+    translation,
+    dissemination,
+    engagement,
+    production,
+    pp_news,
+    pp_oa,
+    pp_policy,
+    pp_twitter,
+    transmission,
+    field
+  )
+
+names(df) <- c(
+  "ID_FINAL",
+  "Commercialisation",
+  "Dissemination",
+  "Engagement",
+  "Joint research",
+  "Media promotion",
+  "Openness",
+  "Public Policy",
+  "Social visibility",
+  "Transmission",
+  "field"
+)
+```
+
+# Figures
+
+## Descriptives
+The following table corresponds to Table 5 in the paper, and includes basic descriptives per field:
+
+- BIOMED. Biomedicine
+- SSH. Social Sciences and Humanities
+- STEM. Science, Technology, Engineering and Mathematics.
+
+```{r}
+df.vars <- df %>%
+  tidyr::pivot_longer(!field & !ID_FINAL, 
+                      names_to = "variable",
+                      values_to = "value")
+
+df.vars %>%
+  group_by(field, variable) %>%
+summarise(n = n(), mean = mean(value), sd = sd(value))
+```
+
+## Correlation matrix
+
+Next we create a correlation matrix including also the distribution of each variable. This figure corresponds to Figure 2.
+
+```{r}
+  ggpairs(df, columns=2:10, aes(colour = field)) + 
+    theme_bw() + scale_color_brewer(palette = "Dark2")
+```
+
+## Archetypal analyses
+
+Following we include the archetypal analyses constructed for each field and overall.
+
+### All cases
+
+The archetypal analysis for all cases is displayed in the manuscript in Figure 3.
+
+#### Identification of archetypes
+
+We first identify the ideal number of archetypes needed. We search for the best model looking at up to 5 archetypes and 5 repetitions.
+
+```{r}
+all <- df %>%
+  select(!field & !ID_FINAL)
+
+set.seed(1986)
+arc.k <- stepArchetypes(data = all, 
+                        k = 1:5, 
+                        verbose =F, 
+                        nrep = 5)
+```
+
+The optimal number of archetypes is selected based on the Residual Sum of Squares (RSS) for which we apply an elbow rule.
+
+```{r}
+screeplot(arc.k) # 3 archetypes
+```
+
+#### Characterization of archetypes
+
+These archetypes have the following parameters
+
+```{r}
+arc.model <- bestModel(arc.k[[3]])
+t(parameters(arc.model))
+```
+
+Which can be better interpreted when plotted in percentiles:
+
+```{r}
+barplot(arc.model, all, percentiles = TRUE)
+```
+
+In the manuscript these percentiles are shown using a radar chart for which we first have to recalculate those percentiles as computed in the `archetypes` package.
+
+```{r}
+.perc <- function(x, data, digits = 2) { # Calculates percentiles
+  Fn <- ecdf(data)
+  round(Fn(x) * 1, digits = digits) 
+}
+
+atypes <- parameters(arc.model) # extract parameters
+rownames(atypes) <- sprintf('Archetype %s',
+                            seq(length = nrow(atypes)))
+
+atypes <- sapply(seq(length = ncol(all)), # Identify percentile for param
+                 function(i)              # based on a data.frame
+                   .perc(atypes[, i], all[, i]))
+
+colnames(atypes) <- colnames(all)
+atypes <- as.data.frame(atypes)
+
+atypes$archetype <- c(1,2,3)
+```
+
+We can then produce the radar charts after converting from wide to long format
+
+```{r}
+params <-
+  tidyr::pivot_longer(atypes,
+                      !c("archetype"),
+                      names_to = "variable",
+                      values_to = "value")
+a1 <- 
+  ggplot(subset(params, archetype == 1)) +
+  geom_col(aes(x = variable, y = value), fill = "#F25200") +
+  labs(title = "Archetype 1", 
+       x = element_blank(), 
+       y = element_blank()) +
+  coord_polar() +
+  theme_minimal()
+
+a2 <-
+  ggplot(subset(params, archetype == 2)) +
+  geom_col(aes(x = variable, y = value), fill = "#F25200") +
+  labs(title = "Archetype 2", 
+       x = element_blank(), 
+       y = element_blank()) +
+  coord_polar() +
+  theme_minimal()
+  
+a3 <-
+  ggplot(subset(params, archetype == 3)) +
+  geom_col(aes(x = variable, y = value), fill = "#F25200") +
+  labs(title = "Archetype 3", 
+       x = element_blank(), 
+       y = element_blank()) +
+  coord_polar() +
+  theme_minimal()
+
+par(mfrow = c(3, 1))
+a1
+a2
+a3
+```
+
+Co-occurrence term maps overlaying alpha scores for researchers' scientific output is available online here: (https://tinyurl.com/allarchetypes)[https://tinyurl.com/allarchetypes]. Below find the code to extract the alpha score of each observation for the three archetypes:
+
+```{r}
+# alphas <- arc.model[["alphas"]]
+# 
+# alphas <- cbind.data.frame(df$ID_FINAL, alphas)
+# write.csv(alphas, file = "alpha-all-respondents.csv", quote = F, 
+#           row.names = F,)
+```
+
+### STEM
+
+The archetypal analysis for STEM cases is displayed in the manuscript in Figure 4.
+
+#### Identification of archetypes
+
+We first identify the ideal number of archetypes needed. We search for the best model looking at up to 5 archetypes and 5 repetitions.
+
+```{r}
+stem <- df %>%
+  filter(field=="STEM") %>%
+  select(!field & !ID_FINAL)
+
+set.seed(1986)
+arc.k <- stepArchetypes(data = stem, 
+                        k = 1:5, 
+                        verbose =F, 
+                        nrep = 5)
+```
+
+The optimal number of archetypes is selected based on the Residual Sum of Squares (RSS) for which we apply an elbow rule.
+
+```{r}
+screeplot(arc.k) # 3 archetypes
+```
+
+#### Characterization of archetypes
+
+These archetypes have the following parameters
+
+```{r}
+arc.model <- bestModel(arc.k[[3]])
+t(parameters(arc.model))
+```
+
+Which can be better interpreted when plotted in percentiles:
+
+```{r}
+barplot(arc.model, stem, percentiles = TRUE)
+```
+
+In the manuscript these percentiles are shown using a radar chart for which we first have to recalculate those percentiles as computed in the `archetypes` package.
+
+```{r}
+stemtypes <- parameters(arc.model) # extract parameters
+rownames(stemtypes) <- sprintf('Archetype %s',
+                               seq(length = nrow(stemtypes)))
+
+stemtypes <-
+  sapply(seq(length = ncol(stem)), # Identify percentile for param
+         function(i)
+           # based on a data.frame
+           .perc(stemtypes[, i], stem[, i]))
+
+colnames(stemtypes) <- colnames(stem)
+stemtypes <- as.data.frame(stemtypes)
+
+stemtypes$archetype <- c(1, 2, 3)
+```
+
+We can then produce the radar charts after converting from wide to long format
+
+```{r}
+params <-
+  tidyr::pivot_longer(stemtypes,
+                      !c("archetype"),
+                      names_to = "variable",
+                      values_to = "value")
+a1 <- 
+  ggplot(subset(params, archetype == 1)) +
+  geom_col(aes(x = variable, y = value), fill = "#00BAB4") +
+  labs(title = "Archetype 1", 
+       x = element_blank(), 
+       y = element_blank()) +
+  coord_polar() +
+  theme_minimal()
+
+a2 <-
+  ggplot(subset(params, archetype == 2)) +
+  geom_col(aes(x = variable, y = value), fill = "#00BAB4") +
+  labs(title = "Archetype 2", 
+       x = element_blank(), 
+       y = element_blank()) +
+  coord_polar() +
+  theme_minimal()
+  
+a3 <-
+  ggplot(subset(params, archetype == 3)) +
+  geom_col(aes(x = variable, y = value), fill = "#00BAB4") +
+  labs(title = "Archetype 3", 
+       x = element_blank(), 
+       y = element_blank()) +
+  coord_polar() +
+  theme_minimal()
+
+par(mfrow = c(3, 1))
+a1
+a2
+a3
+```
+
+Co-occurrence term maps overlaying alpha scores for researchers' scientific output is available online here: (https://tinyurl.com/stemarchetypes)[https://tinyurl.com/stemarchetypes].
+
+### SSH
+
+The archetypal analysis for all cases is displayed in the manuscript in Figure 5.
+
+#### Identification of archetypes
+
+We first identify the ideal number of archetypes needed. We search for the best model looking at up to 5 archetypes and 5 repetitions.
+
+```{r}
+ssh <- df %>%
+  filter(field=="SSH") %>%
+  select(!field & !ID_FINAL)
+
+set.seed(1986)
+arc.k <- stepArchetypes(data = ssh, 
+                        k = 1:5, 
+                        verbose =F, 
+                        nrep = 5)
+```
+
+The optimal number of archetypes is selected based on the Residual Sum of Squares (RSS) for which we apply an elbow rule.
+
+```{r}
+screeplot(arc.k) # 2 archetypes
+```
+
+#### Characterization of archetypes
+
+These archetypes have the following parameters
+
+```{r}
+arc.model <- bestModel(arc.k[[2]])
+t(parameters(arc.model))
+```
+
+Which can be better interpreted when plotted in percentiles:
+
+```{r}
+barplot(arc.model, stem, percentiles = TRUE)
+```
+
+In the manuscript these percentiles are shown using a radar chart for which we first have to recalculate those percentiles as computed in the `archetypes` package.
+
+```{r}
+sshtypes <- parameters(arc.model) # extract parameters
+rownames(sshtypes) <- sprintf('Archetype %s',
+                               seq(length = nrow(sshtypes)))
+
+sshtypes <-
+  sapply(seq(length = ncol(ssh)), # Identify percentile for param
+         function(i)
+           # based on a data.frame
+           .perc(sshtypes[, i], ssh[, i]))
+
+colnames(sshtypes) <- colnames(ssh)
+sshtypes <- as.data.frame(sshtypes)
+
+sshtypes$archetype <- c(1, 2)
+```
+
+We can then produce the radar charts after converting from wide to long format
+
+```{r}
+params <-
+  tidyr::pivot_longer(sshtypes,
+                      !c("archetype"),
+                      names_to = "variable",
+                      values_to = "value")
+a1 <- 
+  ggplot(subset(params, archetype == 1)) +
+  geom_col(aes(x = variable, y = value), fill = "#304160") +
+  labs(title = "Archetype 1", 
+       x = element_blank(), 
+       y = element_blank()) +
+  coord_polar() +
+  theme_minimal()
+
+a2 <-
+  ggplot(subset(params, archetype == 2)) +
+  geom_col(aes(x = variable, y = value), fill = "#304160") +
+  labs(title = "Archetype 2", 
+       x = element_blank(), 
+       y = element_blank()) +
+  coord_polar() +
+  theme_minimal()
+
+par(mfrow = c(3, 1))
+a1
+a2
+```
+
+Co-occurrence term maps overlaying alpha scores for researchers' scientific output is available online here: (https://tinyurl.com/ssharchetypes)[https://tinyurl.com/ssharchetypes].
+
+### BIOMED
+
+The archetypal analysis for BIOMED cases is displayed in the manuscript in Figure 6.
+
+#### Identification of archetypes
+
+We first identify the ideal number of archetypes needed. We search for the best model looking at up to 5 archetypes and 5 repetitions.
+
+```{r}
+biomed <- df %>%
+  filter(field=="BIOMED") %>%
+  select(!field & !ID_FINAL)
+
+set.seed(1986)
+arc.k <- stepArchetypes(data = biomed, 
+                        k = 1:5, 
+                        verbose =F, 
+                        nrep = 5)
+```
+
+The optimal number of archetypes is selected based on the Residual Sum of Squares (RSS) for which we apply an elbow rule.
+
+```{r}
+screeplot(arc.k) # 3 archetypes
+```
+
+#### Characterization of archetypes
+
+These archetypes have the following parameters
+
+```{r}
+arc.model <- bestModel(arc.k[[3]])
+t(parameters(arc.model))
+```
+
+Which can be better interpreted when plotted in percentiles:
+
+```{r}
+barplot(arc.model, biomed, percentiles = TRUE)
+```
+
+In the manuscript these percentiles are shown using a radar chart for which we first have to recalculate those percentiles as computed in the `archetypes` package.
+
+```{r}
+biomedtypes <- parameters(arc.model) # extract parameters
+rownames(biomedtypes) <- sprintf('Archetype %s',
+                               seq(length = nrow(biomedtypes)))
+
+biomedtypes <-
+  sapply(seq(length = ncol(biomed)), # Identify percentile for param
+         function(i)
+           # based on a data.frame
+           .perc(biomedtypes[, i], biomed[, i]))
+
+colnames(biomedtypes) <- colnames(biomed)
+biomedtypes <- as.data.frame(biomedtypes)
+
+biomedtypes$archetype <- c(1, 2, 3)
+```
+
+We can then produce the radar charts after converting from wide to long format
+
+```{r}
+params <-
+  tidyr::pivot_longer(biomedtypes,
+                      !c("archetype"),
+                      names_to = "variable",
+                      values_to = "value")
+a1 <- 
+  ggplot(subset(params, archetype == 1)) +
+  geom_col(aes(x = variable, y = value), fill = "#ADA16B") +
+  labs(title = "Archetype 1", 
+       x = element_blank(), 
+       y = element_blank()) +
+  coord_polar() +
+  theme_minimal()
+
+a2 <-
+  ggplot(subset(params, archetype == 2)) +
+  geom_col(aes(x = variable, y = value), fill = "#ADA16B") +
+  labs(title = "Archetype 2", 
+       x = element_blank(), 
+       y = element_blank()) +
+  coord_polar() +
+  theme_minimal()
+  
+a3 <-
+  ggplot(subset(params, archetype == 3)) +
+  geom_col(aes(x = variable, y = value), fill = "#ADA16B") +
+  labs(title = "Archetype 3", 
+       x = element_blank(), 
+       y = element_blank()) +
+  coord_polar() +
+  theme_minimal()
+
+par(mfrow = c(3, 1))
+a1
+a2
+a3
+```
+
+Co-occurrence term maps overlaying alpha scores for researchers' scientific output is available online here: (https://tinyurl.com/biomedarchetypes)[https://tinyurl.com/biomedarchetypes].
