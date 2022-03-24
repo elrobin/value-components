@@ -149,6 +149,7 @@ t(parameters(arc.model))
 Which can be better interpreted when plotted in percentiles:
 
 ```{r}
+
 barplot(arc.model, all, percentiles = TRUE)
 ```
 
@@ -160,7 +161,10 @@ In the manuscript these percentiles are shown using a radar chart for which we f
   round(Fn(x) * 1, digits = digits) 
 }
 
-atypes <- parameters(arc.model) # extract parameters
+param <- parameters(arc.model)
+
+
+atypes <- param # extract parameters
 rownames(atypes) <- sprintf('Archetype %s',
                             seq(length = nrow(atypes)))
 
@@ -222,7 +226,7 @@ Co-occurrence term maps overlaying alpha scores for researchers' scientific outp
 # 
 # alphas <- cbind.data.frame(df$ID_FINAL, alphas)
 # write.csv(alphas, file = "alpha-all-respondents.csv", quote = F, 
-#           row.names = F,)
+#            row.names = F,)
 ```
 
 ### STEM
@@ -296,7 +300,7 @@ params <-
 a1 <- 
   ggplot(subset(params, archetype == 1)) +
   geom_col(aes(x = variable, y = value), fill = "#00BAB4") +
-  labs(title = "Archetype 1", 
+  labs(title = "Archetype STEM1", 
        x = element_blank(), 
        y = element_blank()) +
   coord_polar() +
@@ -305,7 +309,7 @@ a1 <-
 a2 <-
   ggplot(subset(params, archetype == 2)) +
   geom_col(aes(x = variable, y = value), fill = "#00BAB4") +
-  labs(title = "Archetype 2", 
+  labs(title = "Archetype STEM2", 
        x = element_blank(), 
        y = element_blank()) +
   coord_polar() +
@@ -314,7 +318,7 @@ a2 <-
 a3 <-
   ggplot(subset(params, archetype == 3)) +
   geom_col(aes(x = variable, y = value), fill = "#00BAB4") +
-  labs(title = "Archetype 3", 
+  labs(title = "Archetype STEM3", 
        x = element_blank(), 
        y = element_blank()) +
   coord_polar() +
@@ -327,6 +331,20 @@ a3
 ```
 
 Co-occurrence term maps overlaying alpha scores for researchers' scientific output is available online here: (https://tinyurl.com/stemarchetypes)[https://tinyurl.com/stemarchetypes].
+Below find the code to extract the alpha score of each observation for the three archetypes:
+
+```{r}
+alphas <- arc.model[["alphas"]]
+
+df.stem <- subset (df,
+                   field=="STEM",
+                   select =
+                     c("ID_FINAL"))
+alphas <- cbind.data.frame(df.stem, alphas)
+
+write.csv(alphas, file = "alpha-stem-respondents.csv", quote = F, 
+          row.names = F)
+```
 
 ### SSH
 
@@ -351,7 +369,7 @@ arc.k <- stepArchetypes(data = ssh,
 The optimal number of archetypes is selected based on the Residual Sum of Squares (RSS) for which we apply an elbow rule.
 
 ```{r}
-screeplot(arc.k) # 2 archetypes
+screeplot(arc.k) # 3 archetypes
 ```
 
 #### Characterization of archetypes
@@ -359,7 +377,7 @@ screeplot(arc.k) # 2 archetypes
 These archetypes have the following parameters
 
 ```{r}
-arc.model <- bestModel(arc.k[[2]])
+arc.model <- bestModel(arc.k[[3]])
 t(parameters(arc.model))
 ```
 
@@ -385,7 +403,7 @@ sshtypes <-
 colnames(sshtypes) <- colnames(ssh)
 sshtypes <- as.data.frame(sshtypes)
 
-sshtypes$archetype <- c(1, 2)
+sshtypes$archetype <- c(1, 2, 3)
 ```
 
 We can then produce the radar charts after converting from wide to long format
@@ -399,7 +417,7 @@ params <-
 a1 <- 
   ggplot(subset(params, archetype == 1)) +
   geom_col(aes(x = variable, y = value), fill = "#304160") +
-  labs(title = "Archetype 1", 
+  labs(title = "Archetype SSH1", 
        x = element_blank(), 
        y = element_blank()) +
   coord_polar() +
@@ -408,7 +426,16 @@ a1 <-
 a2 <-
   ggplot(subset(params, archetype == 2)) +
   geom_col(aes(x = variable, y = value), fill = "#304160") +
-  labs(title = "Archetype 2", 
+  labs(title = "Archetype SSH2", 
+       x = element_blank(), 
+       y = element_blank()) +
+  coord_polar() +
+  theme_minimal()
+
+a3 <-
+  ggplot(subset(params, archetype == 3)) +
+  geom_col(aes(x = variable, y = value), fill = "#304160") +
+  labs(title = "Archetype SSH3", 
        x = element_blank(), 
        y = element_blank()) +
   coord_polar() +
@@ -417,9 +444,26 @@ a2 <-
 par(mfrow = c(3, 1))
 a1
 a2
+a3
+
 ```
 
 Co-occurrence term maps overlaying alpha scores for researchers' scientific output is available online here: (https://tinyurl.com/ssharchetypes)[https://tinyurl.com/ssharchetypes].
+
+Below find the code to extract the alpha score of each observation for the three archetypes:
+
+```{r}
+alphas <- arc.model[["alphas"]]
+
+df.ssh <- subset (df,
+                   field=="SSH",
+                   select =
+                     c("ID_FINAL"))
+alphas <- cbind.data.frame(df.ssh, alphas)
+
+write.csv(alphas, file = "alpha-ssh-respondents.csv", quote = F, 
+          row.names = F)
+```
 
 ### BIOMED
 
@@ -492,7 +536,7 @@ params <-
 a1 <- 
   ggplot(subset(params, archetype == 1)) +
   geom_col(aes(x = variable, y = value), fill = "#ADA16B") +
-  labs(title = "Archetype 1", 
+  labs(title = "Archetype BIOMED1", 
        x = element_blank(), 
        y = element_blank()) +
   coord_polar() +
@@ -501,7 +545,7 @@ a1 <-
 a2 <-
   ggplot(subset(params, archetype == 2)) +
   geom_col(aes(x = variable, y = value), fill = "#ADA16B") +
-  labs(title = "Archetype 2", 
+  labs(title = "Archetype BIOMED2", 
        x = element_blank(), 
        y = element_blank()) +
   coord_polar() +
@@ -510,7 +554,7 @@ a2 <-
 a3 <-
   ggplot(subset(params, archetype == 3)) +
   geom_col(aes(x = variable, y = value), fill = "#ADA16B") +
-  labs(title = "Archetype 3", 
+  labs(title = "Archetype BIOMED3", 
        x = element_blank(), 
        y = element_blank()) +
   coord_polar() +
@@ -523,3 +567,17 @@ a3
 ```
 
 Co-occurrence term maps overlaying alpha scores for researchers' scientific output is available online here: (https://tinyurl.com/biomedarchetypes)[https://tinyurl.com/biomedarchetypes].
+Below find the code to extract the alpha score of each observation for the three archetypes:
+
+```{r}
+alphas <- arc.model[["alphas"]]
+
+df.biomed <- subset (df,
+                   field=="BIOMED",
+                   select =
+                     c("ID_FINAL"))
+alphas <- cbind.data.frame(df.biomed, alphas)
+
+write.csv(alphas, file = "alpha-biomed-respondents.csv", quote = F, 
+          row.names = F)
+```
