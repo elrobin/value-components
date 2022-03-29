@@ -33,11 +33,8 @@ The 38 cases removed correspond to observations from researchers who were catego
 
 ```{r}
 df <- read.csv(
-  "https://zenodo.org/record/4767452/files/dataset_archetypes.csv?download=1",
-  colClasses = c("NULL", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA)
+  "https://zenodo.org/record/6393226/files/dataset_archetypes_v3.csv?download=1", sep = ";"
 )
-
-df <- df[complete.cases(df),]
 str(df)
 ```
 
@@ -51,7 +48,7 @@ df$pp_twitter <- df$p_twitter / df$PUBS
 
 df <- df %>% # Select and rename variables
   select(
-    id,
+    ï..id,
     translation,
     dissemination,
     engagement,
