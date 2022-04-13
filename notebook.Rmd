@@ -186,6 +186,7 @@ params <-
 a1 <- 
   ggplot(subset(params, archetype == 1)) +
   geom_col(aes(x = variable, y = value), fill = "#F25200") +
+  ylim(0, 1) +
   labs(title = "Archetype 1", 
        x = element_blank(), 
        y = element_blank()) +
@@ -195,6 +196,7 @@ a1 <-
 a2 <-
   ggplot(subset(params, archetype == 2)) +
   geom_col(aes(x = variable, y = value), fill = "#F25200") +
+  ylim(0, 1) +
   labs(title = "Archetype 2", 
        x = element_blank(), 
        y = element_blank()) +
@@ -204,6 +206,7 @@ a2 <-
 a3 <-
   ggplot(subset(params, archetype == 3)) +
   geom_col(aes(x = variable, y = value), fill = "#F25200") +
+  ylim(0, 1) +
   labs(title = "Archetype 3", 
        x = element_blank(), 
        y = element_blank()) +
@@ -297,6 +300,7 @@ params <-
 a1 <- 
   ggplot(subset(params, archetype == 1)) +
   geom_col(aes(x = variable, y = value), fill = "#00BAB4") +
+  ylim(0, 1) +
   labs(title = "Archetype STEM1", 
        x = element_blank(), 
        y = element_blank()) +
@@ -306,6 +310,7 @@ a1 <-
 a2 <-
   ggplot(subset(params, archetype == 2)) +
   geom_col(aes(x = variable, y = value), fill = "#00BAB4") +
+  ylim(0, 1) +
   labs(title = "Archetype STEM2", 
        x = element_blank(), 
        y = element_blank()) +
@@ -315,6 +320,7 @@ a2 <-
 a3 <-
   ggplot(subset(params, archetype == 3)) +
   geom_col(aes(x = variable, y = value), fill = "#00BAB4") +
+  ylim(0, 1) +
   labs(title = "Archetype STEM3", 
        x = element_blank(), 
        y = element_blank()) +
@@ -414,6 +420,7 @@ params <-
 a1 <- 
   ggplot(subset(params, archetype == 1)) +
   geom_col(aes(x = variable, y = value), fill = "#304160") +
+  ylim(0, 1) +
   labs(title = "Archetype SSH1", 
        x = element_blank(), 
        y = element_blank()) +
@@ -423,6 +430,7 @@ a1 <-
 a2 <-
   ggplot(subset(params, archetype == 2)) +
   geom_col(aes(x = variable, y = value), fill = "#304160") +
+  ylim(0, 1) +
   labs(title = "Archetype SSH2", 
        x = element_blank(), 
        y = element_blank()) +
@@ -432,6 +440,7 @@ a2 <-
 a3 <-
   ggplot(subset(params, archetype == 3)) +
   geom_col(aes(x = variable, y = value), fill = "#304160") +
+  ylim(0, 1) +
   labs(title = "Archetype SSH3", 
        x = element_blank(), 
        y = element_blank()) +
@@ -533,6 +542,7 @@ params <-
 a1 <- 
   ggplot(subset(params, archetype == 1)) +
   geom_col(aes(x = variable, y = value), fill = "#ADA16B") +
+  ylim(0, 1) +
   labs(title = "Archetype BIOMED1", 
        x = element_blank(), 
        y = element_blank()) +
@@ -542,6 +552,7 @@ a1 <-
 a2 <-
   ggplot(subset(params, archetype == 2)) +
   geom_col(aes(x = variable, y = value), fill = "#ADA16B") +
+  ylim(0, 1) +
   labs(title = "Archetype BIOMED2", 
        x = element_blank(), 
        y = element_blank()) +
@@ -551,6 +562,7 @@ a2 <-
 a3 <-
   ggplot(subset(params, archetype == 3)) +
   geom_col(aes(x = variable, y = value), fill = "#ADA16B") +
+  ylim(0, 1) +
   labs(title = "Archetype BIOMED3", 
        x = element_blank(), 
        y = element_blank()) +
