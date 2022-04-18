@@ -1,7 +1,7 @@
 ---
 title: 'Codebook: Study on value creation model of science-society interactions'
 author: "Irene Ramos-Vielba, Nicolas Robinson-Garcia and Richard Woolley"
-date: "17/2/2022"
+date: "March 18, 2022"
 output: html_document
 toc: TRUE
 toc_float: TRUE
@@ -24,12 +24,11 @@ library(archetypes)
 
 # Brief description
 
-This is document reproduces the figures produced in the study 'A value creation model for science-society interconnections: Archetypal analysis combining publications, survey and altmetric data' authored by I. Ramos-Vielba, N. Robinson-Garcia /& R. Woolley. The preprint version of this study is available at [doi:10.31235/osf.io/tkzc5](https://doi.org/10.31235/osf.io/tkzc5). Data is available at [doi:10.5281/zenodo.4767452](http://doi.org/10.5281/zenodo.4767452). Code scripts are available in a (GitHub repository)[https://github.com/elrobin/value-components].
+This is document reproduces the figures produced in the study 'A value creation model for science-society interconnections: Archetypal analysis combining publications, survey and altmetric data' authored by I. Ramos-Vielba, N. Robinson-Garcia /& R. Woolley. Data is available at [doi:10.5281/zenodo.6393226](https://doi.org/10.5281/zenodo.6393226). Code scripts are available in a (GitHub repository)[https://github.com/elrobin/value-components].
 
 # Data import and processing
 
-Data is imported from Zenodo. It includes 6174 observations and 13 variables.
-The 38 cases removed correspond to observations from researchers who were categorised as Multidisciplinary.
+Data is imported from Zenodo. It includes 9,190 observations and 12 variables.
 
 ```{r}
 df <- read.csv(
@@ -219,7 +218,7 @@ a2
 a3
 ```
 
-Co-occurrence term maps overlaying alpha scores for researchers' scientific output is available online here: (https://tinyurl.com/allarchetypes)[https://tinyurl.com/allarchetypes]. Below find the code to extract the alpha score of each observation for the three archetypes:
+Co-occurrence term maps overlaying alpha scores for researchers' scientific output is available online here: (https://sl.ugr.es/allarchetypes)[https://sl.ugr.es/allarchetypes]. Below find the code to extract the alpha score of each observation for the three archetypes:
 
 ```{r}
 # alphas <- arc.model[["alphas"]]
@@ -333,7 +332,7 @@ a2
 a3
 ```
 
-Co-occurrence term maps overlaying alpha scores for researchers' scientific output is available online here: (https://tinyurl.com/stemarchetypes)[https://tinyurl.com/stemarchetypes].
+Co-occurrence term maps overlaying alpha scores for researchers' scientific output is available online here: (https://sl.ugr.es/stemarchetypes)[https://sl.ugr.es/stemarchetypes].
 Below find the code to extract the alpha score of each observation for the three archetypes:
 
 ```{r}
@@ -454,7 +453,7 @@ a3
 
 ```
 
-Co-occurrence term maps overlaying alpha scores for researchers' scientific output is available online here: (https://tinyurl.com/ssharchetypes)[https://tinyurl.com/ssharchetypes].
+Co-occurrence term maps overlaying alpha scores for researchers' scientific output is available online here: (https://sl.ugr.es/ssharchetypes)[https://sl.ugr.es/ssharchetypes].
 
 Below find the code to extract the alpha score of each observation for the three archetypes:
 
@@ -575,7 +574,7 @@ a2
 a3
 ```
 
-Co-occurrence term maps overlaying alpha scores for researchers' scientific output is available online here: (https://tinyurl.com/biomedarchetypes)[https://tinyurl.com/biomedarchetypes].
+Co-occurrence term maps overlaying alpha scores for researchers' scientific output is available online here: (https://sl.ugr.es/biomedarchetypes)[https://sl.ugr.es/biomedarchetypes].
 Below find the code to extract the alpha score of each observation for the three archetypes:
 
 ```{r}
